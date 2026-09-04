@@ -2,54 +2,65 @@
 
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createBlog } from "@/app/actions/blogs";
+import { createBlog, type ActionState } from "../../actions/blogs";
+import { useNotification } from "../../components/NotificationContext";
+
+const initialState: ActionState = {
+  error: "",
+  success: false,
+  values: { title: "", author: "", url: "" },
+};
 
 export default function NewBlog() {
+  const [state, formAction] = useActionState(createBlog, initialState);
+  const { showNotification } = useNotification();
   const router = useRouter();
 
-  // FIX 3: Provide the exact structure for 'values' that TypeScript expects
-  const [state, formAction] = useActionState(createBlog, {
-    error: "",
-    success: false,
-    values: { title: "", author: "", url: "" },
-  });
-
   useEffect(() => {
-    if (state.success) router.push("/blogs");
-  }, [state.success, router]);
+    if (state?.success) {
+      showNotification("Blog created successfully", "success");
+      router.push("/blogs");
+    }
+  }, [state, showNotification, router]);
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Create Blog</h2>
-      <form action={formAction} className="space-y-4 max-w-md">
+    <div>
+      <h2>Create a new blog</h2>
+      <form action={formAction}>
         <div>
-          <label>Title</label>
+          <label htmlFor="title">Title</label>
           <input
+            id="title"
+            type="text"
             name="title"
-            defaultValue={state.values.title}
-            className="border p-2 w-full"
+            defaultValue={state?.values?.title}
+            required
           />
         </div>
         <div>
-          <label>Author</label>
+          <label htmlFor="author">Author</label>
           <input
+            id="author"
+            type="text"
             name="author"
-            defaultValue={state.values.author}
-            className="border p-2 w-full"
+            defaultValue={state?.values?.author}
+            required
           />
         </div>
         <div>
-          <label>URL</label>
+          <label htmlFor="url">URL</label>
           <input
+            id="url"
+            type="text"
             name="url"
-            defaultValue={state.values.url}
-            className="border p-2 w-full"
+            defaultValue={state?.values?.url}
+            required
           />
         </div>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+        <button type="submit" data-testid="create-blog-button">
           Create
         </button>
-        {state.error && <p className="text-red-500">{state.error}</p>}
+        {state?.error && <p style={{ color: "red" }}>{state.error}</p>}
       </form>
     </div>
   );
