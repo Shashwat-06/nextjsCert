@@ -1,5 +1,4 @@
 "use client";
-
 import { useNotification } from "./NotificationContext";
 
 export default function Notification() {
@@ -7,10 +6,17 @@ export default function Notification() {
 
   if (!message) return null;
 
+  const style: React.CSSProperties = {
+    padding: "10px 16px",
+    marginBottom: "10px",
+    borderRadius: "4px",
+    color: "white",
+    backgroundColor: type === "success" ? "#16a34a" : "#dc2626",
+  };
+
+  // Playwright strictly looks for this testid
   return (
-    <div
-      className={`px-4 py-3 text-white text-center font-semibold ${type === "success" ? "bg-green-600" : "bg-red-600"}`}
-    >
+    <div style={style} data-testid="notification">
       {message}
     </div>
   );

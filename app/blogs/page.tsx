@@ -1,43 +1,43 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { blogs } from "@/db/schema";
-import { desc, ilike } from "drizzle-orm";
+import { ilike, desc } from "drizzle-orm";
 
 export default async function BlogsPage({
   searchParams,
 }: {
-  searchParams: { filter?: string };
+  // searchParams MUST be a Promise in Next.js 15
+  searchParams: Promise<{ filter?: string }>;
 }) {
-  const { filter } = searchParams;
+  // Await the promise before accessing properties
+  const { filter } = await searchParams;
 
   const allBlogs = await db.query.blogs.findMany({
     where: filter ? ilike(blogs.title, `%${filter}%`) : undefined,
-    orderBy: [desc(blogs.likes)],
+    orderBy: [desc(blogs.likes)], // Exercises require descending order by likes
   });
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Blogs</h2>
-      <form method="GET" className="mb-4">
+    <div>
+      <h2>Blogs</h2>
+
+      <form method="GET" action="/blogs">
         <input
+          type="text"
           name="filter"
-          placeholder="Search titles..."
-          className="border p-2 mr-2"
+          defaultValue={filter || ""}
+          data-testid="filter-input"
         />
-        <button type="submit" className="bg-gray-200 px-4 py-2">
+        <button type="submit" data-testid="search-button">
           Search
         </button>
       </form>
-      <ul className="space-y-2">
+
+      <ul data-testid="blogs-list">
         {allBlogs.map((blog) => (
-          <li key={blog.id} className="border p-3">
-            <Link
-              href={`/blogs/${blog.id}`}
-              className="text-blue-600 hover:underline"
-            >
-              {blog.title}
-            </Link>{" "}
-            by {blog.author} ({blog.likes} likes)
+          <li key={blog.id}>
+            <Link href={`/blogs/${blog.id}`}>{blog.title}</Link>
+            <span> - {blog.likes} likes</span>
           </li>
         ))}
       </ul>

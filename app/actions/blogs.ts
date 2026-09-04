@@ -3,18 +3,14 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { blogs, users } from "@/db/schema";
+import { blogs, users, readingList } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type ActionState = {
   error: string;
   success?: boolean;
-  values: {
-    title: string;
-    author: string;
-    url: string;
-  };
+  values: { title: string; author: string; url: string };
 };
 
 export const createBlog = async (
@@ -29,16 +25,14 @@ export const createBlog = async (
 
   if (title.length < 5 || author.length < 5 || url.length < 5) {
     return {
-      error: "Fields must be at least 5 characters long",
+      error: "Fields must be at least 5 characters",
       success: false,
       values: currentValues,
     };
   }
 
   const session = await auth();
-  if (!session?.user?.email) {
-    redirect("/login");
-  }
+  if (!session?.user?.email) redirect("/login");
 
   const user = await db.query.users.findFirst({
     where: eq(users.username, session.user.email),
@@ -46,12 +40,24 @@ export const createBlog = async (
 
   if (!user) redirect("/login");
 
-  await db.insert(blogs).values({
-    title,
-    author,
-    url,
-    userId: user.id,
-  });
+  // Create the blog and return the inserted data to get the ID
+  const newBlog = await db
+    .insert(blogs)
+    .values({
+      title,
+      author,
+      url,
+      userId: user.id,
+    })
+    .returning();
+
+  // Exercise 20: Each blog the user adds should be by default added to their reading list
+  if (newBlog[0]) {
+    await db.insert(readingList).values({
+      userId: user.id,
+      blogId: newBlog[0].id,
+    });
+  }
 
   revalidatePath("/blogs");
   return {
@@ -59,4 +65,19 @@ export const createBlog = async (
     success: true,
     values: { title: "", author: "", url: "" },
   };
+};
+
+export const likeBlog = async (formData: FormData) => {
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  const blog = await db.query.blogs.findFirst({ where: eq(blogs.id, id) });
+  if (blog) {
+    await db
+      .update(blogs)
+      .set({ likes: blog.likes + 1 })
+      .where(eq(blogs.id, id));
+    revalidatePath(`/blogs/${id}`);
+    revalidatePath("/blogs");
+  }
 };
