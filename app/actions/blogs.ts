@@ -4,12 +4,27 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { blogs } from "@/db/schema";
+// FIX 1: Import 'users' alongside 'blogs'
+import { blogs, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export const createBlog = async (prevState: any, formData: FormData) => {
+// Define a clear type for the state to keep TypeScript happy
+type ActionState = {
+  error: string;
+  success: boolean;
+  values: { title: string; author: string; url: string };
+};
+
+export const createBlog = async (
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> => {
   const session = await auth();
-  if (!session) redirect("/login");
+
+  // FIX 2: Strictly check that session, user, and email exist
+  if (!session || !session.user || !session.user.email) {
+    redirect("/login");
+  }
 
   const title = formData.get("title") as string;
   const author = formData.get("author") as string;
@@ -24,7 +39,7 @@ export const createBlog = async (prevState: any, formData: FormData) => {
   }
 
   const user = await db.query.users.findFirst({
-    where: eq(users.username, session.user.email!),
+    where: eq(users.username, session.user.email),
   });
 
   await db.insert(blogs).values({ title, author, url, userId: user!.id });

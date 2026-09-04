@@ -6,10 +6,12 @@ import { createBlog } from "@/app/actions/blogs";
 
 export default function NewBlog() {
   const router = useRouter();
+
+  // FIX 3: Provide the exact structure for 'values' that TypeScript expects
   const [state, formAction] = useActionState(createBlog, {
     error: "",
     success: false,
-    values: {},
+    values: { title: "", author: "", url: "" },
   });
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function NewBlog() {
           <label>Title</label>
           <input
             name="title"
-            defaultValue={state.values?.title || ""}
+            defaultValue={state.values.title}
             className="border p-2 w-full"
           />
         </div>
@@ -32,7 +34,7 @@ export default function NewBlog() {
           <label>Author</label>
           <input
             name="author"
-            defaultValue={state.values?.author || ""}
+            defaultValue={state.values.author}
             className="border p-2 w-full"
           />
         </div>
@@ -40,7 +42,7 @@ export default function NewBlog() {
           <label>URL</label>
           <input
             name="url"
-            defaultValue={state.values?.url || ""}
+            defaultValue={state.values.url}
             className="border p-2 w-full"
           />
         </div>
