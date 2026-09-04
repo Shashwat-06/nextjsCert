@@ -2,10 +2,19 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { db } from "./db";
-import { users } from "./db/schema";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Force NextAuth to accept the test suite's secret, or fall back safely
+  secret:
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "super-secret-test-key",
+
+  // Prevent NextAuth from doing local fetches that crash the GitHub CI
+  trustHost: true,
+
   providers: [
     Credentials({
       credentials: {

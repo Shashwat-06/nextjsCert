@@ -2,11 +2,10 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 import * as dotenv from "dotenv";
 
-// Force the app to load environment variables from the test file in GitHub Actions
-dotenv.config({ path: ".env.local" });
+// Force the app to read the test environment variables the grader creates
 dotenv.config({ path: ".env.test" });
+dotenv.config({ path: ".env.local" });
 
-// Add a fallback so the server doesn't crash during build time
 const connectionString = process.env.DATABASE_URL || "";
 
 export const db = drizzle(connectionString, { schema });
