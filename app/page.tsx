@@ -22,7 +22,7 @@ export default function Home() {
 
       <p className="text-gray-500 text-sm">
         Use the navigation bar above to view the blog list, register a new
-        account, or log in to create your own posts.
+        account, or log in to create your own posts
       </p>
     </div>
   );
