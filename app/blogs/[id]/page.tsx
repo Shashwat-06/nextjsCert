@@ -11,11 +11,13 @@ export default async function BlogPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // Await the promise
   const { id } = await params;
+  const blogId = parseInt(id, 10);
+
+  if (isNaN(blogId)) notFound();
 
   const blog = await db.query.blogs.findFirst({
-    where: eq(blogs.id, Number(id)),
+    where: eq(blogs.id, blogId),
     with: { user: true },
   });
 
@@ -30,8 +32,6 @@ export default async function BlogPage({
     });
   }
 
-  // The exercise states the "add to reading list" button should only show
-  // if the logged-in user did NOT create the blog themselves.
   const isOwner = currentUser?.id === blog.userId;
 
   return (

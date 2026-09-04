@@ -7,47 +7,28 @@ export default function NavBar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="bg-gray-900 text-white px-6 py-4 flex items-center gap-6 shadow-md">
-      <Link href="/" className="hover:text-blue-400 font-bold text-lg">
-        Home
-      </Link>
-      <Link href="/blogs" className="hover:text-blue-400">
-        Blogs
-      </Link>
+    <nav className="bg-gray-800 text-white px-6 py-3 flex items-center gap-4">
+      <Link href="/">home</Link>
+      <Link href="/blogs">blogs</Link>
+      <Link href="/users">users</Link>
 
       <div className="ml-auto flex items-center gap-4">
         {session ? (
           <>
-            <Link href="/blogs/new" className="hover:text-blue-400">
-              Create Blog
-            </Link>
-            <Link
-              href="/me"
-              className="hover:text-blue-400 text-sm text-gray-300"
-            >
-              My Page
-            </Link>
-            <em className="text-gray-400 text-sm hidden sm:block">
-              {session.user?.name} logged in
-            </em>
+            <Link href="/blogs/new">create new</Link>
+            <Link href="/me">me</Link>
+            <em>{session.user?.name} logged in</em>
             <button
-              onClick={() => signOut()}
-              className="bg-red-600 hover:bg-red-500 px-4 py-1.5 rounded text-sm font-medium transition-colors"
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded"
             >
-              Logout
+              logout
             </button>
           </>
         ) : (
           <>
-            <Link href="/login" className="hover:text-blue-400">
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="bg-blue-600 hover:bg-blue-500 px-4 py-1.5 rounded text-sm font-medium transition-colors"
-            >
-              Register
-            </Link>
+            <Link href="/login">login</Link>
+            <Link href="/register">register</Link>
           </>
         )}
       </div>
