@@ -3,17 +3,17 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
 
-  // 3 minutes per test to allow Next.js dev server to compile pages in CI
-  timeout: 180 * 1000,
+  // Lower global timeout so broken tests fail fast instead of hanging
+  timeout: 30 * 1000,
 
   expect: {
-    timeout: 30 * 1000,
+    timeout: 10 * 1000,
   },
 
-  // MUST be false and 1 worker to prevent database race conditions during testing
+  // MUST remain false and 1 worker to prevent database race conditions
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0,
   workers: 1,
 
   reporter: "html",
@@ -21,10 +21,8 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-
-    // Give Next.js plenty of time to compile a page on its first load
-    navigationTimeout: 120 * 1000,
-    actionTimeout: 60 * 1000,
+    actionTimeout: 15 * 1000,
+    navigationTimeout: 15 * 1000,
   },
 
   projects: [
@@ -35,14 +33,12 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev",
+    // Use Turbopack for near-instant page compilation in CI
+    command: "npx next dev --turbo",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-
-    // Give the Next.js server 5 full minutes to boot up and compile the homepage
-    timeout: 300 * 1000,
+    timeout: 120 * 1000,
     env: {
-      // Prevents Next.js from hanging in the background asking for telemetry permission
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },
