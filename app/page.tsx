@@ -18,7 +18,7 @@ export default function Home() {
         <li>Automated testing endpoints</li>
       </ul>
 
-      <hr className="my-8 border-gray-200" />
+      <hr className="my-8 border-gray-300" />
 
       <p className="text-gray-500 text-sm">
         Use the navigation bar above to view the blog list, register a new
