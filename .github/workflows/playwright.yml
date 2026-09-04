@@ -26,10 +26,11 @@ jobs:
 
       - name: Set up environment file
         run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.test
-          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env.test
-          echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.test
-          echo "NODE_ENV=test" >> .env.test
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.local
+          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env.local
+          echo "NEXTAUTH_URL=http://localhost:3000" >> .env.local
+          echo "NODE_ENV=test" >> .env.local
+          cp .env.local .env.test
 
       - name: Verify environment setup
         run: |
