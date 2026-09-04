@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 import * as dotenv from "dotenv";
 
-// Force the app to load environment variables from the test file if it exists
+// Force the app to load environment variables from the test file in GitHub Actions
 dotenv.config({ path: ".env.local" });
 dotenv.config({ path: ".env.test" });
 
